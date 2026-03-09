@@ -1,0 +1,32 @@
+=============================================
+  VELVETSTORE - THÔNG TIN TÀI KHOẢN
+=============================================
+
+--- ADMIN ---
+Email:    admin@velvetstore.vn
+Mật khẩu: admin123
+URL:      http://localhost:3000/admin
+
+--- KHÁCH HÀNG 1 ---
+Email:    nguyenvana@gmail.com
+Mật khẩu: 123456
+
+--- KHÁCH HÀNG 2 ---
+Email:    tranthib@gmail.com
+Mật khẩu: 123456
+
+=============================================
+  DATABASE
+=============================================
+Host:     localhost
+Port:     3306
+User:     root
+Password: root
+Database: velvetstore
+
+=============================================
+  CHẠY DỰ ÁN
+=============================================
+Backend:  cd backend && npm run dev    (port 5000)
+Frontend: cd frontend && npm start     (port 3000)
+Seed DB:  cd backend && npm run seed
