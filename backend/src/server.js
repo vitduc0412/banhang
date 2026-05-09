@@ -49,7 +49,7 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('Kết nối database thành công');
 
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
     console.log('Đồng bộ database thành công');
 
     app.listen(PORT, () => {

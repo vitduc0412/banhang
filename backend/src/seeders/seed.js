@@ -507,9 +507,9 @@ Size XL: Ngực 94-98cm, Eo 78-82cm</p>
     // --- SYSTEM CONFIG ---
     await SystemConfig.bulkCreate([
       { key: 'shop_name', value: 'VelvetStore' },
-      { key: 'shop_phone', value: '0901 234 567' },
+      { key: 'shop_phone', value: '0842 932 949' },
       { key: 'shop_email', value: 'contact@velvetstore.vn' },
-      { key: 'shop_address', value: '123 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh' },
+      { key: 'shop_address', value: '202 Đường Trần Nguyên Hãn, Bắc Giang, Bắc Ninh' },
       { key: 'shop_description', value: 'Thời trang chất lượng cao với phong cách hiện đại' },
       { key: 'facebook_url', value: 'https://facebook.com/velvetstore' },
       { key: 'instagram_url', value: 'https://instagram.com/velvetstore' },

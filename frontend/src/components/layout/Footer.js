@@ -37,11 +37,11 @@ const Footer = () => {
             <h4>Liên hệ</h4>
             <div className="footer-contact">
               <FiMapPin size={16} />
-              <span>123 Nguyễn Văn Linh, Quận 7, TP.HCM</span>
+              <span>202 Đường Trần Nguyên Hãn, Bắc Giang, Bắc Ninh</span>
             </div>
             <div className="footer-contact">
               <FiPhone size={16} />
-              <span>0901 234 567</span>
+              <span>0842 932 949</span>
             </div>
             <div className="footer-contact">
               <FiMail size={16} />
