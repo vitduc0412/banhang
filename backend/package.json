@@ -5,7 +5,10 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "seed": "node src/seeders/seed.js"
+    "seed": "node src/seeders/seed.js",
+    "db:import": "node src/scripts/importDb.js",
+    "db:export": "node src/scripts/exportDb.js",
+    "setup": "npm install && npm run db:import"
   },
   "keywords": [],
   "author": "",

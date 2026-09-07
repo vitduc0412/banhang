@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const querystring = require('querystring');
 const { Order } = require('../models');
 
 // POST /create-vnpay-url - Tạo URL thanh toán VNPay
@@ -57,7 +56,7 @@ const createVnpayUrl = async (req, res) => {
       req.ip;
 
     const vnpParams = {
-      vnp_Amount: Math.round(Number(order.total) * 100),
+      vnp_Amount: String(Math.round(Number(order.total) * 100)),
       vnp_Command: 'pay',
       vnp_CreateDate: createDate,
       vnp_CurrCode: 'VND',
@@ -73,13 +72,11 @@ const createVnpayUrl = async (req, res) => {
 
     // Sắp xếp tham số theo key
     const sortedParams = sortObject(vnpParams);
-    const signData = querystring.stringify(sortedParams, '&', '=');
+    const signData = buildQueryString(sortedParams);
     const hmac = crypto.createHmac('sha512', secretKey);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
-    sortedParams.vnp_SecureHash = signed;
-
-    const paymentUrl = `${vnpUrl}?${querystring.stringify(sortedParams, '&', '=')}`;
+    const paymentUrl = `${vnpUrl}?${signData}&vnp_SecureHash=${signed}`;
 
     res.json({
       message: 'Tạo URL thanh toán thành công',
@@ -105,7 +102,7 @@ const vnpayReturn = async (req, res) => {
 
     const secretKey = process.env.VNPAY_HASH_SECRET;
     const sortedParams = sortObject(vnpParams);
-    const signData = querystring.stringify(sortedParams, '&', '=');
+    const signData = buildQueryString(sortedParams);
     const hmac = crypto.createHmac('sha512', secretKey);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
@@ -179,6 +176,13 @@ function sortObject(obj) {
     sorted[key] = obj[key];
   }
   return sorted;
+}
+
+// Hàm build query string đúng chuẩn VNPay: encodeURIComponent rồi thay %20 bằng +
+function buildQueryString(sortedParams) {
+  return Object.entries(sortedParams)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value).replace(/%20/g, '+')}`)
+    .join('&');
 }
 
 // Hàm format ngày theo định dạng VNPay: yyyyMMddHHmmss

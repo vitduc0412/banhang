@@ -197,9 +197,9 @@ const createOrder = async (req, res) => {
 
       appliedVoucherId = voucher.id;
 
-      await voucher.update(
-        { usedCount: voucher.usedCount + 1 },
-        { transaction }
+      await Voucher.update(
+        { usedCount: sequelize.literal('usedCount + 1') },
+        { where: { id: voucher.id }, transaction }
       );
     }
 
@@ -238,10 +238,23 @@ const createOrder = async (req, res) => {
 
     // Giảm tồn kho và cập nhật totalSold
     for (const item of cartItems) {
-      await ProductVariant.update(
+      const [affectedRows] = await ProductVariant.update(
         { stock: sequelize.literal(`stock - ${item.quantity}`) },
-        { where: { id: item.variant.id }, transaction }
+        {
+          where: {
+            id: item.variant.id,
+            stock: { [Op.gte]: item.quantity }
+          },
+          transaction
+        }
       );
+
+      if (affectedRows === 0) {
+        await transaction.rollback();
+        return res.status(400).json({
+          message: `Sản phẩm "${item.variant.product.name}" (${item.variant.size}/${item.variant.color}) vừa hết hàng. Vui lòng thử lại`
+        });
+      }
 
       await Product.update(
         { totalSold: sequelize.literal(`totalSold + ${item.quantity}`) },
