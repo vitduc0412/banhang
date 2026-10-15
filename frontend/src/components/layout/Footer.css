@@ -91,3 +91,30 @@
     grid-template-columns: 1fr;
   }
 }
+
+.footer-logo-img {
+  max-height: 40px;
+  width: auto;
+}
+
+.footer-social {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.footer-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: inherit;
+  transition: border-color var(--transition);
+}
+
+.footer-social a:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+}

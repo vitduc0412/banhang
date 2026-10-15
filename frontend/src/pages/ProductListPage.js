@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { productAPI, categoryAPI } from '../api';
 import ProductCard from '../components/product/ProductCard';
 import { FiChevronRight, FiFilter, FiX } from 'react-icons/fi';
@@ -42,7 +42,8 @@ const ProductListPage = () => {
 
   const currentPage = parseInt(searchParams.get('page')) || 1;
   const searchQuery = searchParams.get('search') || '';
-  const selectedCategoryId = searchParams.get('categoryId') || '';
+  const { categoryId: routeCategoryId } = useParams();
+  const selectedCategoryId = searchParams.get('categoryId') || routeCategoryId || '';
   const sortBy = searchParams.get('sort') || 'newest';
   const minPrice = searchParams.get('minPrice') || '';
   const maxPrice = searchParams.get('maxPrice') || '';

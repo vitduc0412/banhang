@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FiMapPin, FiCreditCard, FiCheckCircle, FiPlus, FiChevronRight, FiTruck, FiDollarSign } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { orderAPI, addressAPI, paymentAPI, voucherAPI } from '../api';
+import { orderAPI, addressAPI, paymentAPI, voucherAPI, storeAPI } from '../api';
 import { formatPrice } from '../utils/formatPrice';
 import useProvinces from '../hooks/useProvinces';
 import './CheckoutPage.css';
@@ -18,7 +18,8 @@ const STEPS = [
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { cartItems, clearCart } = useCart();
+  const { cartItems, cartLoading, clearCart } = useCart();
+  const initializedRef = useRef(false);
   const { user } = useAuth();
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -36,6 +37,9 @@ const CheckoutPage = () => {
   const [selectedProvinceCode, setSelectedProvinceCode] = useState('');
   const [selectedDistrictCode, setSelectedDistrictCode] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('COD');
+  const [shippingMethods, setShippingMethods] = useState([]);
+  const [shippingMethodId, setShippingMethodId] = useState(null);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(500000);
   const [loading, setLoading] = useState(false);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
 
@@ -78,7 +82,24 @@ const CheckoutPage = () => {
     return sum + price * item.quantity;
   }, 0);
 
-  const shippingFee = subtotal > 500000 ? 0 : 30000;
+  useEffect(() => {
+    storeAPI.getShippingMethods()
+      .then((res) => {
+        const methods = res.shippingMethods || [];
+        setShippingMethods(methods);
+        if (res.freeShippingThreshold) setFreeShippingThreshold(Number(res.freeShippingThreshold));
+        if (methods.length) setShippingMethodId(methods[0].id);
+      })
+      .catch(() => setShippingMethods([]));
+  }, []);
+
+  const selectedShipping = shippingMethods.find((method) => method.id === shippingMethodId);
+  const isStandardShipping = shippingMethods.length > 0 && selectedShipping?.id === shippingMethods[0].id;
+  const shippingFee = !selectedShipping
+    ? 0
+    : isStandardShipping && subtotal >= freeShippingThreshold
+      ? 0
+      : Number(selectedShipping.fee);
   const total = subtotal - voucherDiscount + shippingFee;
 
   useEffect(() => {
@@ -87,12 +108,14 @@ const CheckoutPage = () => {
       navigate('/dang-nhap');
       return;
     }
+    if (cartLoading || initializedRef.current) return;
+    initializedRef.current = true;
     if (cartItems.length === 0) {
       navigate('/gio-hang');
       return;
     }
     fetchAddresses();
-  }, []);
+  }, [cartLoading]);
 
   const fetchAddresses = async () => {
     try {
@@ -153,6 +176,7 @@ const CheckoutPage = () => {
         addressId: selectedAddressId,
         paymentMethod,
         voucherCode,
+        shippingMethodId,
       };
 
       const res = await orderAPI.create(orderData);
@@ -382,6 +406,50 @@ const CheckoutPage = () => {
                   Chọn phương thức thanh toán
                 </h2>
 
+                {shippingMethods.length > 0 && (
+                  <>
+                    <h3 className="checkout-subtitle">
+                      <FiTruck size={18} />
+                      Phương thức vận chuyển
+                    </h3>
+                    <div className="payment-methods shipping-methods">
+                      {shippingMethods.map((method) => {
+                        const isFree = method.id === shippingMethods[0].id && subtotal >= freeShippingThreshold;
+                        return (
+                          <label
+                            key={method.id}
+                            className={`payment-method card ${shippingMethodId === method.id ? 'selected' : ''}`}
+                          >
+                            <input
+                              type="radio"
+                              name="shipping"
+                              value={method.id}
+                              checked={shippingMethodId === method.id}
+                              onChange={() => setShippingMethodId(method.id)}
+                              className="payment-radio"
+                            />
+                            <div className="payment-method-content">
+                              <div className="payment-method-info">
+                                <span className="payment-method-name">{method.name}</span>
+                                <span className="payment-method-desc">
+                                  {method.description}{method.estimatedDays ? ` · ${method.estimatedDays}` : ''}
+                                </span>
+                              </div>
+                              <span className="shipping-method-fee">
+                                {isFree ? 'Miễn phí' : formatPrice(method.fee)}
+                              </span>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <h3 className="checkout-subtitle">
+                      <FiCreditCard size={18} />
+                      Phương thức thanh toán
+                    </h3>
+                  </>
+                )}
+
                 <div className="payment-methods">
                   <label className={`payment-method card ${paymentMethod === 'COD' ? 'selected' : ''}`}>
                     <input
@@ -479,6 +547,12 @@ const CheckoutPage = () => {
                   <p className="review-payment">
                     {paymentMethod === 'COD' ? 'Thanh toán khi nhận hàng (COD)' : 'Thanh toán qua VNPay'}
                   </p>
+                  {selectedShipping && (
+                    <p className="review-payment">
+                      Vận chuyển: {selectedShipping.name}
+                      {selectedShipping.estimatedDays ? ` (${selectedShipping.estimatedDays})` : ''}
+                    </p>
+                  )}
                 </div>
 
                 {/* Items Review */}

@@ -10,13 +10,17 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [cartCount, setCartCount] = useState(0);
   const [cartLoading, setCartLoading] = useState(true);
+  const [loadedUserId, setLoadedUserId] = useState(undefined);
   const { user } = useAuth();
+  const currentUserId = user?.id ?? null;
+  const isCartReady = !cartLoading && loadedUserId === currentUserId;
 
   const fetchCart = async () => {
     if (!user) {
       setCartItems([]);
       setCartCount(0);
       setCartLoading(false);
+      setLoadedUserId(null);
       return;
     }
     try {
@@ -49,6 +53,7 @@ export const CartProvider = ({ children }) => {
       setCartCount(0);
     } finally {
       setCartLoading(false);
+      setLoadedUserId(user.id);
     }
   };
 
@@ -79,7 +84,7 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, cartCount, cartLoading, addToCart, updateQuantity, removeItem, clearCart, fetchCart }}>
+    <CartContext.Provider value={{ cartItems, cartCount, cartLoading: !isCartReady, addToCart, updateQuantity, removeItem, clearCart, fetchCart }}>
       {children}
     </CartContext.Provider>
   );

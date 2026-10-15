@@ -526,3 +526,24 @@
     order: 1;
   }
 }
+
+.checkout-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.shipping-methods {
+  margin-bottom: 28px;
+}
+
+.shipping-method-fee {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--primary);
+  white-space: nowrap;
+}
