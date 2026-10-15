@@ -24,7 +24,12 @@ const getAll = async (req, res) => {
     const where = { isActive: true };
 
     if (categoryId) {
-      where.categoryId = categoryId;
+      const childCategories = await Category.findAll({
+        where: { parentId: categoryId },
+        attributes: ['id'],
+        raw: true
+      });
+      where.categoryId = { [Op.in]: [parseInt(categoryId), ...childCategories.map((child) => child.id)] };
     }
 
     if (search) {

@@ -9,8 +9,11 @@ const {
   Address,
   User,
   Voucher,
+  ShippingMethod,
   sequelize
 } = require('../models');
+
+const FREE_SHIPPING_THRESHOLD = 500000;
 
 // POST / - Tạo đơn hàng
 const createOrder = async (req, res) => {
@@ -22,10 +25,18 @@ const createOrder = async (req, res) => {
       fullName,
       phone,
       address,
-      paymentMethod = 'cod',
+      paymentMethod: rawPaymentMethod = 'cod',
       note,
-      voucherId
+      voucherId,
+      voucherCode,
+      shippingMethodId
     } = req.body;
+
+    const paymentMethod = String(rawPaymentMethod).toLowerCase();
+    if (!['cod', 'vnpay'].includes(paymentMethod)) {
+      await transaction.rollback();
+      return res.status(400).json({ message: 'Phương thức thanh toán không hợp lệ' });
+    }
 
     // Xác định thông tin giao hàng
     let shippingFullName, shippingPhone, shippingAddress;
@@ -143,8 +154,10 @@ const createOrder = async (req, res) => {
     let discount = 0;
     let appliedVoucherId = null;
 
-    if (voucherId) {
-      const voucher = await Voucher.findByPk(voucherId, { transaction });
+    if (voucherId || voucherCode) {
+      const voucher = voucherId
+        ? await Voucher.findByPk(voucherId, { transaction })
+        : await Voucher.findOne({ where: { code: String(voucherCode).trim().toUpperCase() }, transaction });
 
       if (!voucher) {
         await transaction.rollback();
@@ -203,7 +216,23 @@ const createOrder = async (req, res) => {
       );
     }
 
-    const shippingFee = 0;
+    const activeMethods = await ShippingMethod.findAll({
+      where: { isActive: true },
+      order: [['fee', 'ASC']],
+      transaction
+    });
+    let shippingFee = 0;
+    if (activeMethods.length) {
+      const selectedMethod = shippingMethodId
+        ? activeMethods.find((method) => method.id === Number(shippingMethodId))
+        : activeMethods[0];
+      if (!selectedMethod) {
+        await transaction.rollback();
+        return res.status(400).json({ message: 'Phương thức vận chuyển không hợp lệ' });
+      }
+      const isStandardMethod = selectedMethod.id === activeMethods[0].id;
+      shippingFee = isStandardMethod && subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : Number(selectedMethod.fee);
+    }
     const total = subtotal - discount + shippingFee;
     const orderCode = 'VS' + Date.now();
 

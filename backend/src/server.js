@@ -31,6 +31,7 @@ app.use('/api/blogs', require('./routes/blog'));
 app.use('/api/contacts', require('./routes/contact'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/recommendations', require('./routes/recommendation'));
+app.use('/api/store', require('./routes/store'));
 
 // Health check
 app.get('/api/health', (req, res) => {
