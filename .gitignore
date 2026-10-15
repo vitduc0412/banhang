@@ -33,3 +33,7 @@ nul
 *.md
 *.sh
 docs
+# Playwright
+screenshots/
+frontend/test-results/
+frontend/playwright-report/
