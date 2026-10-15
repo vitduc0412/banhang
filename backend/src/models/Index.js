@@ -17,6 +17,7 @@ const ShippingMethod = require('./ShippingMethod');
 const SystemConfig = require('./SystemConfig');
 const Brand = require('./Brand');
 const Material = require('./Material');
+const ProductView = require('./ProductView');
 
 // Product - Category
 Product.belongsTo(Category, { foreignKey: 'categoryId', as: 'category' });
@@ -57,6 +58,10 @@ Review.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Review.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
 Product.hasMany(Review, { foreignKey: 'productId', as: 'reviews' });
 
+ProductView.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+ProductView.belongsTo(User, { foreignKey: 'userId' });
+Product.hasMany(ProductView, { foreignKey: 'productId', as: 'views' });
+
 // Blog
 Blog.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
 
@@ -79,5 +84,6 @@ module.exports = {
   ShippingMethod,
   SystemConfig,
   Brand,
-  Material
+  Material,
+  ProductView
 };
