@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiX, FiImage } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiX, FiImage, FiDownload } from 'react-icons/fi';
+import { exportCsv } from '../../utils/exportFile';
 import { adminAPI } from '../../api';
 import { formatPrice } from '../../utils/formatPrice';
 import { toast } from 'react-toastify';
@@ -10,6 +11,34 @@ const AdminProductsPage = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const res = await adminAPI.getProducts({ page: 1, limit: 10000 });
+      const list = res.products || [];
+      exportCsv(`san-pham-${new Date().toISOString().slice(0, 10)}.csv`, [
+        { label: 'ID', value: 'id' },
+        { label: 'Tên sản phẩm', value: 'name' },
+        { label: 'Danh mục', value: (row) => row.category?.name },
+        { label: 'Thương hiệu', value: 'brand' },
+        { label: 'Chất liệu', value: 'material' },
+        { label: 'Giá gốc', value: (row) => Number(row.price) },
+        { label: 'Giá khuyến mãi', value: (row) => (row.salePrice ? Number(row.salePrice) : '') },
+        { label: 'Tồn kho', value: (row) => (row.variants || []).reduce((sum, variant) => sum + variant.stock, 0) },
+        { label: 'Biến thể', value: (row) => (row.variants || []).map((variant) => `${variant.size}/${variant.color}: ${variant.stock}`).join('; ') },
+        { label: 'Đã bán', value: 'totalSold' },
+        { label: 'Đánh giá TB', value: 'avgRating' },
+        { label: 'Trạng thái', value: (row) => (row.isActive ? 'Đang bán' : 'Ngừng bán') },
+      ], list);
+      toast.success(`Đã xuất ${list.length} sản phẩm`);
+    } catch (err) {
+      toast.error(err.message || 'Không thể xuất danh sách sản phẩm');
+    } finally {
+      setExporting(false);
+    }
+  };
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -63,9 +92,14 @@ const AdminProductsPage = () => {
     <div className="admin-products-page">
       <div className="page-header">
         <h1 className="page-title">Quản lý sản phẩm</h1>
-        <button className="btn-primary" onClick={() => navigate('/admin/san-pham/tao-moi')}>
-          <FiPlus /> Thêm sản phẩm
-        </button>
+        <div className="page-header-actions">
+          <button className="btn-secondary" onClick={handleExport} disabled={exporting}>
+            <FiDownload /> {exporting ? 'Đang xuất...' : 'Xuất Excel'}
+          </button>
+          <button className="btn-primary" onClick={() => navigate('/admin/san-pham/tao-moi')}>
+            <FiPlus /> Thêm sản phẩm
+          </button>
+        </div>
       </div>
 
       <div className="filter-bar">

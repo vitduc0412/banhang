@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { FiSearch, FiX, FiChevronDown, FiChevronUp, FiFilter } from 'react-icons/fi';
-import { adminAPI } from '../../api';
+import { FiSearch, FiX, FiChevronDown, FiChevronUp, FiFilter, FiDownload, FiPrinter } from 'react-icons/fi';
+import { toast } from 'react-toastify';
+import { adminAPI, storeAPI } from '../../api';
+import { exportCsv, printInvoice, paymentStatusText } from '../../utils/exportFile';
 import { formatPrice } from '../../utils/formatPrice';
 import './AdminOrdersPage.css';
 
@@ -23,6 +25,7 @@ const AdminOrdersPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [expandedId, setExpandedId] = useState(null);
   const [updating, setUpdating] = useState(null);
+  const [exporting, setExporting] = useState(false);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -65,6 +68,54 @@ const AdminOrdersPage = () => {
     setPage(1);
   };
 
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const res = await adminAPI.getAllOrders({ page: 1, limit: 10000, search, status: statusFilter || undefined });
+      const list = res.orders || [];
+      if (!list.length) {
+        toast.info('Không có đơn hàng để xuất');
+        return;
+      }
+      exportCsv(`don-hang-${new Date().toISOString().slice(0, 10)}.csv`, [
+        { label: 'Mã đơn', value: 'orderCode' },
+        { label: 'Ngày đặt', value: (row) => new Date(row.createdAt).toLocaleString('vi-VN') },
+        { label: 'Khách hàng', value: (row) => row.fullName || row.user?.fullName },
+        { label: 'Số điện thoại', value: 'phone' },
+        { label: 'Địa chỉ', value: 'address' },
+        {
+          label: 'Sản phẩm',
+          value: (row) => (row.items || []).map((item) => `${item.productName} (${item.size}/${item.color}) x${item.quantity}`).join('; '),
+        },
+        { label: 'Tạm tính', value: (row) => Number(row.subtotal) },
+        { label: 'Phí vận chuyển', value: (row) => Number(row.shippingFee) },
+        { label: 'Giảm giá', value: (row) => Number(row.discount) },
+        { label: 'Tổng cộng', value: (row) => Number(row.total) },
+        { label: 'Thanh toán', value: (row) => (row.paymentMethod === 'vnpay' ? 'VNPay' : 'COD') },
+        { label: 'Trạng thái thanh toán', value: (row) => paymentStatusText(row.paymentStatus) },
+        { label: 'Trạng thái đơn', value: (row) => statusLabels[row.status] || row.status },
+      ], list);
+      toast.success(`Đã xuất ${list.length} đơn hàng`);
+    } catch (err) {
+      toast.error(err.message || 'Không thể xuất danh sách đơn hàng');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handlePrint = async (order) => {
+    let shop = {};
+    try {
+      const res = await storeAPI.getConfig();
+      shop = res.config || {};
+    } catch {
+      shop = {};
+    }
+    if (!printInvoice(order, shop)) {
+      toast.warning('Trình duyệt đã chặn cửa sổ in, vui lòng cho phép pop-up');
+    }
+  };
+
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
   };
@@ -82,6 +133,9 @@ const AdminOrdersPage = () => {
     <div className="admin-orders-page">
       <div className="page-header">
         <h1 className="page-title">Quản lý đơn hàng</h1>
+        <button className="btn-secondary" onClick={handleExport} disabled={exporting}>
+          <FiDownload /> {exporting ? 'Đang xuất...' : 'Xuất Excel'}
+        </button>
       </div>
 
       <div className="filter-bar">
@@ -205,6 +259,9 @@ const AdminOrdersPage = () => {
                             <p><strong>Phương thức thanh toán:</strong> {order.paymentMethod === 'vnpay' ? 'VNPay' : order.paymentMethod === 'cod' ? 'COD' : order.paymentMethod || 'N/A'}</p>
                             <p><strong>Phí vận chuyển:</strong> {formatPrice(order.shippingFee || 0)}</p>
                             <p className="detail-total"><strong>Tổng cộng:</strong> {formatPrice(order.total || 0)}</p>
+                            <button className="btn-secondary btn-print" onClick={() => handlePrint(order)}>
+                              <FiPrinter /> In hóa đơn
+                            </button>
                           </div>
                         </div>
                       </td>

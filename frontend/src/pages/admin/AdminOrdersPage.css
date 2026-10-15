@@ -194,3 +194,7 @@
     grid-template-columns: 1fr;
   }
 }
+
+.btn-print {
+  margin-top: 12px;
+}

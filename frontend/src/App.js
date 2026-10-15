@@ -41,6 +41,10 @@ import AdminBlogsPage from './pages/admin/AdminBlogPage';
 import AdminReportsPage from './pages/admin/AdminReportsPage';
 import AdminProductFormPage from './pages/admin/AdminProductFormPage';
 import AdminBrandMaterialPage from './pages/admin/AdminBrandMaterialPage';
+import AdminRecommendationsPage from './pages/admin/AdminRecommendationsPage';
+import AdminShippingPage from './pages/admin/AdminShippingPage';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage';
+import AdminContactsPage from './pages/admin/AdminContactsPage';
 
 import './assets/css/index.css';
 
@@ -94,6 +98,10 @@ function App() {
               <Route path="danh-gia" element={<AdminReviewsPage />} />
               <Route path="bai-viet" element={<AdminBlogsPage />} />
               <Route path="bao-cao" element={<AdminReportsPage />} />
+              <Route path="goi-y" element={<AdminRecommendationsPage />} />
+              <Route path="van-chuyen" element={<AdminShippingPage />} />
+              <Route path="lien-he" element={<AdminContactsPage />} />
+              <Route path="cau-hinh" element={<AdminSettingsPage />} />
             </Route>
 
             {/* Main layout routes */}

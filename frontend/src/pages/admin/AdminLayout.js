@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import {
   FiGrid, FiBox, FiLayers, FiShoppingBag, FiUsers, FiTag,
   FiStar, FiFileText, FiMail, FiTruck, FiSettings, FiBarChart2,
-  FiLogOut, FiAward, FiFeather
+  FiLogOut, FiAward, FiFeather, FiZap
 } from 'react-icons/fi';
 import './AdminLayout.css';
 
@@ -20,6 +20,10 @@ const sidebarLinks = [
   { to: '/admin/danh-gia', icon: <FiStar size={18} />, label: 'Đánh giá' },
   { to: '/admin/bai-viet', icon: <FiFileText size={18} />, label: 'Bài viết' },
   { to: '/admin/bao-cao', icon: <FiBarChart2 size={18} />, label: 'Báo cáo' },
+  { to: '/admin/goi-y', icon: <FiZap size={18} />, label: 'Gợi ý sản phẩm' },
+  { to: '/admin/van-chuyen', icon: <FiTruck size={18} />, label: 'Vận chuyển' },
+  { to: '/admin/lien-he', icon: <FiMail size={18} />, label: 'Liên hệ' },
+  { to: '/admin/cau-hinh', icon: <FiSettings size={18} />, label: 'Cấu hình' },
 ];
 
 const AdminLayout = () => {

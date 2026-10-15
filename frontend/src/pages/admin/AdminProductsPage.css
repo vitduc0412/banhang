@@ -426,3 +426,8 @@
   color: var(--text-light);
   line-height: 1.6;
 }
+
+.page-header-actions {
+  display: flex;
+  gap: 10px;
+}
