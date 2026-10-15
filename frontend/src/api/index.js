@@ -20,6 +20,21 @@ export const productAPI = {
   getByCategory: (categoryId, params) => axiosClient.get(`/products/category/${categoryId}`, { params }),
 };
 
+export const storeAPI = {
+  getShippingMethods: () => axiosClient.get('/store/shipping-methods'),
+  getConfig: () => axiosClient.get('/store/config'),
+};
+
+export const recommendationAPI = {
+  getForYou: (params) => axiosClient.get('/recommendations/for-you', { params }),
+  getTrending: (params) => axiosClient.get('/recommendations/trending', { params }),
+  getSimilar: (productId, params) => axiosClient.get(`/recommendations/similar/${productId}`, { params }),
+  getBoughtTogether: (productId, params) => axiosClient.get(`/recommendations/bought-together/${productId}`, { params }),
+  getForCart: (params) => axiosClient.get('/recommendations/cart', { params }),
+  getRecentlyViewed: (params) => axiosClient.get('/recommendations/recently-viewed', { params }),
+  trackView: (productId) => axiosClient.post('/recommendations/track-view', { productId }),
+};
+
 // Categories
 export const categoryAPI = {
   getAll: () => axiosClient.get('/categories'),
@@ -138,6 +153,8 @@ export const adminAPI = {
   getRevenueReport: (params) => axiosClient.get('/admin/reports/revenue', { params }),
   getBestSellers: () => axiosClient.get('/admin/reports/best-sellers'),
   getLowStock: () => axiosClient.get('/admin/reports/low-stock'),
+
+  getRecommendationStats: () => axiosClient.get('/recommendations/admin/stats'),
 
   // Shipping
   getShippingMethods: () => axiosClient.get('/admin/shipping-methods'),

@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiShoppingBag, FiTrash2, FiPlus, FiMinus, FiTag, FiArrowRight, FiX } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { useCart } from '../context/CartContext';
-import { voucherAPI } from '../api';
+import { voucherAPI, recommendationAPI } from '../api';
+import RecommendationSection from '../components/recommendation/RecommendationSection';
 import { formatPrice } from '../utils/formatPrice';
 import './CartPage.css';
 
@@ -102,6 +103,14 @@ const CartPage = () => {
               <FiArrowRight />
             </Link>
           </div>
+          <RecommendationSection
+            layout="inline"
+            eyebrow="Gợi ý cho bạn"
+            title="Có thể bạn sẽ thích"
+            subtitle="Dựa trên những sản phẩm bạn đã xem và xu hướng mua sắm gần đây"
+            fetchProducts={() => recommendationAPI.getForYou({ limit: 4 })}
+            dependencyKey="empty-cart"
+          />
         </div>
       </div>
     );
@@ -273,6 +282,17 @@ const CartPage = () => {
               </button>
             </div>
           </div>
+        </div>
+
+        <div className="cart-recommendations">
+          <RecommendationSection
+            layout="inline"
+            eyebrow="Hoàn thiện set đồ"
+            title="Thường được mua cùng"
+            subtitle="Những món khách hàng khác hay chọn kèm với các sản phẩm trong giỏ của bạn"
+            fetchProducts={() => recommendationAPI.getForCart({ limit: 4 })}
+            dependencyKey={cartItems.map((item) => item.variantId || item.id).join('-')}
+          />
         </div>
       </div>
     </div>

@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiTruck, FiRefreshCw, FiShield, FiHeadphones, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import { productAPI, categoryAPI } from '../api';
+import { productAPI, categoryAPI, recommendationAPI } from '../api';
+import { useAuth } from '../context/AuthContext';
+import RecommendationSection from '../components/recommendation/RecommendationSection';
 import ProductCard from '../components/product/ProductCard';
 import './HomePage.css';
 
@@ -42,6 +44,7 @@ const CATEGORY_IMAGES = [
 ];
 
 const HomePage = () => {
+  const { user } = useAuth();
   const [categories, setCategories] = useState([]);
   const [categoryProducts, setCategoryProducts] = useState({});
   const [saleProducts, setSaleProducts] = useState([]);
@@ -234,6 +237,26 @@ const HomePage = () => {
           </div>
         </section>
       )}
+
+      <RecommendationSection
+        eyebrow="Gợi ý thông minh"
+        title={user ? `Dành riêng cho ${user.fullName?.split(' ').pop() || 'bạn'}` : 'Gợi ý dành cho bạn'}
+        subtitle={(meta) =>
+          meta.personalized
+            ? 'Được chọn lọc từ lịch sử xem, giỏ hàng, danh sách yêu thích và đơn hàng của bạn'
+            : 'Những sản phẩm đang được yêu thích nhất. Xem thêm sản phẩm để nhận gợi ý chính xác hơn'
+        }
+        fetchProducts={() => recommendationAPI.getForYou({ limit: 8 })}
+        dependencyKey={user?.id || 'guest'}
+        skeletonCount={8}
+      />
+
+      <RecommendationSection
+        eyebrow="Tiếp tục khám phá"
+        title="Sản phẩm bạn đã xem"
+        fetchProducts={() => recommendationAPI.getRecentlyViewed({ limit: 4 })}
+        dependencyKey={`recent-${user?.id || 'guest'}`}
+      />
 
       {/* ─── PRODUCTS BY CATEGORY ─── */}
       {loading ? (

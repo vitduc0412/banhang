@@ -66,6 +66,11 @@ const ProductCard = ({ product }) => {
         <Link to={`/san-pham/${product.slug || product.id}`}>
           <h3 className="product-card-name">{product.name}</h3>
         </Link>
+        {product.recommendation?.reason && (
+          <span className="product-card-reason" title={product.recommendation.reason}>
+            {product.recommendation.reason}
+          </span>
+        )}
         <div className="product-card-price">
           {hasDiscount ? (
             <>

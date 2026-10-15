@@ -9,7 +9,28 @@ const axiosClient = axios.create({
   }
 });
 
+const SESSION_KEY = 'vs_session_id';
+
+export const getSessionId = () => {
+  try {
+    let sessionId = localStorage.getItem(SESSION_KEY);
+    if (!sessionId) {
+      sessionId = window.crypto?.randomUUID
+        ? window.crypto.randomUUID()
+        : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+      localStorage.setItem(SESSION_KEY, sessionId);
+    }
+    return sessionId;
+  } catch {
+    return null;
+  }
+};
+
 axiosClient.interceptors.request.use((config) => {
+  const sessionId = getSessionId();
+  if (sessionId) {
+    config.headers['X-Session-Id'] = sessionId;
+  }
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

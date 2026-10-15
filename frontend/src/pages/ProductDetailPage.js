@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { productAPI, reviewAPI, wishlistAPI } from '../api';
-import ProductCard from '../components/product/ProductCard';
+import { productAPI, reviewAPI, wishlistAPI, recommendationAPI } from '../api';
+import RecommendationSection from '../components/recommendation/RecommendationSection';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../utils/formatPrice';
@@ -29,8 +29,6 @@ const ProductDetailPage = () => {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [averageRating, setAverageRating] = useState(0);
 
-  const [relatedProducts, setRelatedProducts] = useState([]);
-
   // Review form
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewHover, setReviewHover] = useState(0);
@@ -49,21 +47,7 @@ const ProductDetailPage = () => {
         setSelectedSize(null);
         setSelectedColor(null);
         setQuantity(1);
-
-        if (productData.categoryId) {
-          try {
-            const relRes = await productAPI.getAll({
-              categoryId: productData.categoryId,
-              limit: 4,
-            });
-            const related = (relRes.products || relRes.data || []).filter(
-              (p) => p.id !== productData.id
-            );
-            setRelatedProducts(related.slice(0, 4));
-          } catch {
-            setRelatedProducts([]);
-          }
-        }
+        recommendationAPI.trackView(productData.id).catch(() => {});
       } catch {
         toast.error('Không tìm thấy sản phẩm');
         navigate('/san-pham');
@@ -562,16 +546,31 @@ const ProductDetailPage = () => {
           )}
         </section>
 
-        {relatedProducts.length > 0 && (
-          <section className="pdp-related">
-            <h2 className="pdp-section-title">Sản phẩm liên quan</h2>
-            <div className="pdp-related-grid">
-              {relatedProducts.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
-          </section>
-        )}
+        <RecommendationSection
+          layout="inline"
+          eyebrow="Phối đồ hoàn chỉnh"
+          title="Thường được mua cùng"
+          subtitle="Dựa trên các đơn hàng thực tế có chứa sản phẩm này"
+          fetchProducts={() => recommendationAPI.getBoughtTogether(product.id, { limit: 4 })}
+          dependencyKey={`together-${product.id}`}
+        />
+
+        <RecommendationSection
+          layout="inline"
+          eyebrow="Có thể bạn quan tâm"
+          title="Sản phẩm tương tự"
+          subtitle="Gần giống về kiểu dáng, chất liệu, màu sắc và mức giá"
+          fetchProducts={() => recommendationAPI.getSimilar(product.id, { limit: 4 })}
+          dependencyKey={`similar-${product.id}`}
+        />
+
+        <RecommendationSection
+          layout="inline"
+          eyebrow="Lịch sử"
+          title="Bạn đã xem gần đây"
+          fetchProducts={() => recommendationAPI.getRecentlyViewed({ limit: 4, exclude: product.id })}
+          dependencyKey={`recent-${product.id}`}
+        />
       </div>
     </div>
   );
