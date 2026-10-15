@@ -7,13 +7,17 @@ Email:    admin@velvetstore.vn
 Mật khẩu: admin123
 URL:      http://localhost:3000/admin
 
---- KHÁCH HÀNG 1 ---
-Email:    nguyenvana@gmail.com
-Mật khẩu: 123456
-
---- KHÁCH HÀNG 2 ---
-Email:    tranthib@gmail.com
-Mật khẩu: 123456
+--- KHÁCH HÀNG (mật khẩu chung: 123456) ---
+an@gmail.com               Nguyễn Văn An
+bich@gmail.com             Trần Thị Bích
+minhanh.le@gmail.com       Lê Minh Anh       (có lịch sử mua, dùng để demo gợi ý cá nhân hóa)
+quochuy.pham@gmail.com     Phạm Quốc Huy
+thutrang.hoang@gmail.com   Hoàng Thu Trang
+giabao.do@gmail.com        Đỗ Gia Bảo
+ngoclan.vu@gmail.com       Vũ Ngọc Lan
+ducthang.bui@gmail.com     Bùi Đức Thắng
+khanhlinh.ngo@gmail.com    Ngô Khánh Linh
+hainam.trinh@gmail.com     Trịnh Hải Nam
 
 =============================================
   DATABASE
@@ -23,10 +27,12 @@ Port:     3306
 User:     root
 Password: root
 Database: velvetstore
+Dump:     database/Dump20261015.sql (cd backend && npm run db:import)
 
 =============================================
   CHẠY DỰ ÁN
 =============================================
 Backend:  cd backend && npm run dev    (port 5000)
 Frontend: cd frontend && npm start     (port 3000)
-Seed DB:  cd backend && npm run seed
+Seed dữ liệu gợi ý: cd backend && npm run seed:recommend
+Test E2E: cd frontend && npx playwright test

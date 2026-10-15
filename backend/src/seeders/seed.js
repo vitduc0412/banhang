@@ -97,7 +97,7 @@ const seed = async () => {
         isFeatured: true,
         images: [
           { url: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1598033129183-c4f50c736c10?w=600', isPrimary: false }
+          { url: 'https://images.unsplash.com/photo-1598032895397-b9472444bf93?w=600', isPrimary: false }
         ],
         variants: [
           { size: 'S', color: 'Trắng', stock: 30 },
@@ -206,7 +206,7 @@ const seed = async () => {
         brand: 'VelvetStore',
         isFeatured: true,
         images: [
-          { url: 'https://images.unsplash.com/photo-1625910513413-5fc420e7abbe?w=600', isPrimary: true }
+          { url: 'https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=600', isPrimary: true }
         ],
         variants: [
           { size: 'M', color: 'Xanh navy', stock: 40 },
