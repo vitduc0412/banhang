@@ -6,7 +6,7 @@ import './Footer.css';
 
 const DEFAULT_CONFIG = {
   shop_description: 'Thời trang chất lượng cao với phong cách hiện đại, mang đến trải nghiệm mua sắm tuyệt vời cho bạn.',
-  shop_address: '123 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh',
+  shop_address: '42 Louis XVI, Louis City, Tân Mai, Hoàng Mai, Hà Nội',
   shop_phone: '0901 234 567',
   shop_email: 'contact@velvetstore.vn'
 };

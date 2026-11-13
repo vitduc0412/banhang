@@ -151,7 +151,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h4>Địa chỉ</h4>
-                  <p>123 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh</p>
+                  <p>42 Louis XVI, Louis City, Tân Mai, Hoàng Mai, Hà Nội</p>
                 </div>
               </div>
 
